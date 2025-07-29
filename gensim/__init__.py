@@ -8,5 +8,13 @@ __author__ = "Dennis Gankin"
 from .simulator import GCTASimulator
 from .config import SimulationConfig
 from .utils import GCTAUtils
+from .plink_simulator import (
+    PLINKSimulator, 
+    PLINKSimulationConfig, 
+    PLINKSimulationSet,
+    PLINKParameterGrid,
+    PLINKParameterGridSimulator
+)
+from .plink_simulator import PLINKSimulator, PLINKSimulationConfig, PLINKSimulationSet
 
-__all__ = ["GCTASimulator", "SimulationConfig", "GCTAUtils"]
+__all__ = ["GCTASimulator", "SimulationConfig", "GCTAUtils", "PLINKSimulator", "PLINKSimulationConfig", "PLINKSimulationSet"]

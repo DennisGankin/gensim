@@ -49,59 +49,87 @@ def test_configuration():
         print(f"✗ Configuration creation failed: {e}")
         return False
 
-def test_sample_files():
-    """Check if sample PLINK files exist."""
-    bfile = "test"
-    extensions = [".bed", ".bim", ".fam"]
-    
-    missing_files = []
-    for ext in extensions:
-        if not os.path.exists(f"{bfile}{ext}"):
-            missing_files.append(f"{bfile}{ext}")
-    
-    if missing_files:
-        print(f"⚠ Sample PLINK files not found: {missing_files}")
-        print("  This is expected if you haven't set up test data yet")
+def test_plink_installation():
+    """Test PLINK installation."""
+    try:
+        import subprocess
+        result = subprocess.run(
+            ["plink", "--version"], 
+            capture_output=True, 
+            text=True, 
+            timeout=10
+        )
+        if result.returncode == 0:
+            print("✓ PLINK found and accessible")
+            return True
+        else:
+            print("⚠ PLINK found but returned error")
+            return False
+    except Exception as e:
+        print(f"✗ PLINK not found or not accessible: {e}")
+        print("  Install PLINK from: https://www.cog-genomics.org/plink/")
         return False
-    else:
-        print("✓ Sample PLINK files found")
+
+def test_plink_simulation():
+    """Test PLINK simulation functionality."""
+    try:
+        from gensim import PLINKSimulator, PLINKSimulationConfig, PLINKSimulationSet
+        
+        # Create simple test configuration
+        snp_sets = [PLINKSimulationSet(100, "test", 0.05, 0.50, 1.00, 1.00)]
+        config = PLINKSimulationConfig(
+            output_prefix="test_plink",
+            num_cases=10,
+            num_controls=10,
+            snp_sets=snp_sets
+        )
+        
+        print("✓ PLINK simulation configuration successful")
+        print(f"  - Total SNPs: {config.get_total_snps()}")
         return True
+    except Exception as e:
+        print(f"✗ PLINK simulation configuration failed: {e}")
+        return False
 
 def main():
-    """Run all tests."""
-    print("Gensim Installation Test")
-    print("=" * 30)
+    """Run all installation tests."""
+    print("Testing gensim installation...")
+    print("=" * 40)
     
-    tests = [
-        ("Import Test", test_imports),
-        ("GCTA Installation", test_gcta_installation),
-        ("Configuration Test", test_configuration),
-        ("Sample Files", test_sample_files)
-    ]
+    results = []
     
-    passed = 0
-    total = len(tests)
+    # Test package import
+    results.append(test_import())
     
-    for test_name, test_func in tests:
-        print(f"\n{test_name}:")
-        if test_func():
-            passed += 1
+    # Test configuration
+    results.append(test_configuration())
     
-    print(f"\n{'=' * 30}")
+    # Test GCTA installation
+    results.append(test_gcta_installation())
+    
+    # Test PLINK installation
+    results.append(test_plink_installation())
+    
+    # Test PLINK simulation
+    results.append(test_plink_simulation())
+    
+    # Summary
+    print("\n" + "=" * 40)
+    passed = sum(results)
+    total = len(results)
     print(f"Tests passed: {passed}/{total}")
     
     if passed == total:
-        print("✓ All tests passed! Gensim is ready to use.")
-        return 0
+        print("✓ All tests passed! Installation looks good.")
+        print("\nNext steps:")
+        print("1. For GCTA simulations: Prepare your PLINK binary files (.bed, .bim, .fam)")
+        print("2. For PLINK dataset creation: Run 'python main.py --create-plink-dataset'")
+        print("3. Check examples.py and plink_examples.py for usage examples")
     else:
         print("⚠ Some tests failed. Check the output above for details.")
-        
-        if passed >= 2:  # Import and config tests passed
-            print("\nYou can still use gensim, but you may need to:")
-            print("- Install GCTA and add it to your PATH")
-            print("- Provide PLINK binary files for simulation")
-        
-        return 1
-
-if __name__ == "__main__":
-    sys.exit(main())
+        if not results[2]:  # GCTA test failed
+            print("  - GCTA is required for phenotype simulation")
+        if not results[3]:  # PLINK test failed
+            print("  - PLINK is required for dataset creation")
+    
+    return 0 if passed == total else 1

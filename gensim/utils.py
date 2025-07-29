@@ -121,6 +121,37 @@ class GCTAUtils:
         return output_file
     
     @staticmethod
+    def create_causal_snplist_synthetic(num_causal: int, 
+                                      output_file: str, 
+                                      random_seed: Optional[int] = None) -> str:
+        """
+        Create a file with synthetic causal SNP names for simulation without reference data.
+        
+        Args:
+            num_causal: Number of causal SNPs to generate
+            output_file: Output file path for SNP list
+            random_seed: Random seed for reproducibility
+            
+        Returns:
+            Path to created SNP list file
+        """
+        if random_seed is not None:
+            random.seed(random_seed)
+        
+        # Generate synthetic SNP IDs
+        causal_snps = [f"snp_{i+1:06d}" for i in range(num_causal)]
+        
+        # Create output directory if needed
+        os.makedirs(os.path.dirname(output_file), exist_ok=True)
+        
+        # Write SNP list
+        with open(output_file, 'w') as f:
+            for snp in causal_snps:
+                f.write(f"{snp}\n")
+        
+        return output_file
+    
+    @staticmethod
     def create_keep_file(fam_file: str, cohort_size: int, 
                         output_file: str, random_seed: Optional[int] = None) -> str:
         """
@@ -142,7 +173,7 @@ class GCTAUtils:
         try:
             fam_df = pd.read_csv(
                 fam_file, 
-                sep='\s+', 
+                sep=r'\s+', 
                 header=None,
                 names=['fid', 'iid', 'father', 'mother', 'sex', 'phenotype']
             )
@@ -191,7 +222,7 @@ class GCTAUtils:
                 command,
                 capture_output=True,
                 text=True,
-                timeout=3600  # 1 hour timeout
+                timeout=14400  # 4 hour timeout (14400 seconds)
             )
             
             success = result.returncode == 0
@@ -210,7 +241,7 @@ class GCTAUtils:
             return success, result.stdout, result.stderr
             
         except subprocess.TimeoutExpired:
-            error_msg = "Command timed out after 1 hour"
+            error_msg = "Command timed out after 4 hours"
             if logger:
                 logger.error(error_msg)
             return False, "", error_msg

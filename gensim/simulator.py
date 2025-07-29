@@ -227,7 +227,7 @@ class GCTASimulator:
             import pandas as pd
             fam_df = pd.read_csv(
                 f"{self.config.bfile}.fam", 
-                sep='\s+', 
+                sep=r'\s+', 
                 header=None
             )
             return len(fam_df)
