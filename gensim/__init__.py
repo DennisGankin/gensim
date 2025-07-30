@@ -15,6 +15,21 @@ from .plink_simulator import (
     PLINKParameterGrid,
     PLINKParameterGridSimulator
 )
-from .plink_simulator import PLINKSimulator, PLINKSimulationConfig, PLINKSimulationSet
 
-__all__ = ["GCTASimulator", "SimulationConfig", "GCTAUtils", "PLINKSimulator", "PLINKSimulationConfig", "PLINKSimulationSet"]
+# Import HDF5 utilities if h5py is available
+try:
+    from .h5_utils import H5PLINKReader, read_h5_plink, list_h5_files
+    HDF5_AVAILABLE = True
+    __all__ = [
+        "GCTASimulator", "SimulationConfig", "GCTAUtils", 
+        "PLINKSimulator", "PLINKSimulationConfig", "PLINKSimulationSet",
+        "PLINKParameterGrid", "PLINKParameterGridSimulator",
+        "H5PLINKReader", "read_h5_plink", "list_h5_files"
+    ]
+except ImportError:
+    HDF5_AVAILABLE = False
+    __all__ = [
+        "GCTASimulator", "SimulationConfig", "GCTAUtils", 
+        "PLINKSimulator", "PLINKSimulationConfig", "PLINKSimulationSet",
+        "PLINKParameterGrid", "PLINKParameterGridSimulator"
+    ]

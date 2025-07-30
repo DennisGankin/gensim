@@ -210,3 +210,7 @@ __marimo__/
 # data folder
 data
 simulations
+
+# slurm output
+*.err
+*.out
