@@ -214,3 +214,5 @@ simulations
 # slurm output
 *.err
 *.out
+slurm_scripts/
+slurm_scripts_gwas/
